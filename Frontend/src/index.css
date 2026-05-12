@@ -2,77 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================
-   index.css — Styles globaux de Nexa Transport
-   Appliqué sur toute l'application via main.jsx
-   ============================================ */
+/* index.css — Styles globaux Nexa Transport */
 
-/* --- Reset de base : supprime les marges/paddings par défaut --- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ✅ CSS Variable par défaut */
+:root {
+  --font-size: 15px; /* medium par défaut */
+}
+
+/* Reset */
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box; /* Les bordures sont incluses dans la largeur */
+  box-sizing: border-box;
 }
 
-/* --- Style de la page entière --- */
+/* ✅ Applique la CSS Variable sur TOUT le body */
+/* Ça écrase Tailwind car c'est plus spécifique ! */
+body,
+body * {
+  font-size: var(--font-size) !important;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  transition: font-size 0.2s ease;
+}
+
+/* Exceptions — garde les icônes emoji à leur taille */
+.emoji {
+  font-size: inherit !important;
+}
+
 body {
-  font-family: 'DM Sans', 'Segoe UI', sans-serif; /* Police moderne qu'on a importée dans index.html */
-  background-color: #0F0F1A;  /* Fond sombre de toute l'app */
-  color: #E8E8F0;              /* Couleur de texte par défaut (blanc cassé) */
-  min-height: 100vh;           /* L'app prend toute la hauteur de l'écran */
-  overflow-x: hidden;          /* Pas de scroll horizontal indésirable */
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* --- L'élément racine React (#root dans index.html) --- */
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* --- Scrollbar personnalisée (visible sur Chrome/Edge) --- */
-::-webkit-scrollbar {
-  width: 5px; /* Scrollbar fine et élégante */
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.4); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(108,99,255,0.7); }
 
-::-webkit-scrollbar-track {
-  background: transparent; /* Fond de la piste invisible */
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(108, 99, 255, 0.4); /* Pouce violet semi-transparent */
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(108, 99, 255, 0.7); /* Plus visible au survol */
-}
-
-/* --- Liens : pas de soulignement par défaut --- */
-a {
-  text-decoration: none;
-  color: inherit; /* Hérite la couleur du parent */
-}
-
-/* --- Boutons : reset du style navigateur --- */
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-  font-family: inherit; /* Même police que le reste */
-}
-
-/* --- Inputs : reset du style navigateur --- */
-input {
-  font-family: inherit;
-  outline: none;
-  border: none;
-}
-
-/* --- Placeholder des inputs --- */
-input::placeholder {
-  color: rgba(255, 255, 255, 0.25); /* Gris clair discret */
-}
+a { text-decoration: none; color: inherit; }
 
 /* --- Variables CSS globales (couleurs réutilisables partout) --- */
 :root {
