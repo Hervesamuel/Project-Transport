@@ -1,8 +1,10 @@
 // pages/Parametres.jsx
-// Page des paramètres — Mode sombre, Police, Langue
+// Page des paramètres — Mode sombre + Langue uniquement
+// La taille de police est dans TaillePolice.jsx
 
 import { useApp } from "../context/AppContext";
 
+// ---- Section carte ----
 function Section({ titre, children, isDark }) {
   return (
     <div style={{
@@ -21,6 +23,7 @@ function Section({ titre, children, isDark }) {
   );
 }
 
+// ---- Ligne paramètre ----
 function LigneParam({ label, description, children, isDark }) {
   return (
     <div style={{
@@ -43,7 +46,7 @@ function LigneParam({ label, description, children, isDark }) {
   );
 }
 
-// Toggle ON/OFF
+// ---- Toggle ON/OFF ----
 function Toggle({ actif, onChange }) {
   return (
     <div onClick={onChange} style={{
@@ -64,7 +67,7 @@ function Toggle({ actif, onChange }) {
   );
 }
 
-// Boutons de choix
+// ---- Boutons de choix ----
 function BoutonChoix({ options, valeur, onChange }) {
   return (
     <div style={{ display: "flex", gap: "8px" }}>
@@ -87,6 +90,7 @@ function BoutonChoix({ options, valeur, onChange }) {
   );
 }
 
+// ============================================
 export default function Parametres() {
   const { settings, updateSetting } = useApp();
   const isDark = settings.theme === "dark";
@@ -104,30 +108,27 @@ export default function Parametres() {
         </p>
       </div>
 
-      {/* APPARENCE */}
+      {/* ============ MODE SOMBRE ============ */}
       <Section titre="🎨 Apparence" isDark={isDark}>
-        <LigneParam label="Mode sombre" description="Activer le fond sombre" isDark={isDark}>
+        <LigneParam
+          label="Mode sombre"
+          description="Activer le fond sombre de l'application"
+          isDark={isDark}
+        >
           <Toggle
             actif={isDark}
             onChange={() => updateSetting("theme", isDark ? "light" : "dark")}
           />
         </LigneParam>
-        <LigneParam label="Taille de police" description="Taille du texte" isDark={isDark}>
-          <BoutonChoix
-            valeur={settings.police}
-            onChange={(v) => updateSetting("police", v)}
-            options={[
-              { value: "small",  label: "A"   },
-              { value: "medium", label: "AA"  },
-              { value: "large",  label: "AAA" },
-            ]}
-          />
-        </LigneParam>
       </Section>
 
-      {/* LANGUE */}
+      {/* ============ LANGUE ============ */}
       <Section titre="🌍 Langue" isDark={isDark}>
-        <LigneParam label="Langue de l'interface" description="Français ou Malagasy" isDark={isDark}>
+        <LigneParam
+          label="Langue de l'interface"
+          description="Choisissez votre langue préférée"
+          isDark={isDark}
+        >
           <BoutonChoix
             valeur={settings.langue}
             onChange={(v) => updateSetting("langue", v)}
@@ -139,10 +140,11 @@ export default function Parametres() {
         </LigneParam>
       </Section>
 
-      {/* APERÇU */}
+      {/* ============ APERÇU ============ */}
       <Section titre="👁️ Paramètres actuels" isDark={isDark}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: "12px" }}>
 
+          {/* Thème */}
           <div style={{ padding: "16px", borderRadius: "12px", background: "rgba(108,99,255,0.1)", border: "1px solid rgba(108,99,255,0.2)" }}>
             <div style={{ fontSize: "24px", marginBottom: "8px" }}>{isDark ? "🌙" : "☀️"}</div>
             <div style={{ fontSize: "12px", color: "rgba(108,99,255,0.7)", marginBottom: "4px" }}>Thème</div>
@@ -151,14 +153,7 @@ export default function Parametres() {
             </div>
           </div>
 
-          <div style={{ padding: "16px", borderRadius: "12px", background: "rgba(0,201,167,0.1)", border: "1px solid rgba(0,201,167,0.2)" }}>
-            <div style={{ fontSize: "24px", marginBottom: "8px" }}>🔤</div>
-            <div style={{ fontSize: "12px", color: "rgba(0,201,167,0.7)", marginBottom: "4px" }}>Police</div>
-            <div style={{ fontSize: "14px", fontWeight: "700", color: "#00C9A7" }}>
-              {settings.police === "small" ? "Petite" : settings.police === "medium" ? "Moyenne" : "Grande"}
-            </div>
-          </div>
-
+          {/* Langue */}
           <div style={{ padding: "16px", borderRadius: "12px", background: "rgba(255,184,48,0.1)", border: "1px solid rgba(255,184,48,0.2)" }}>
             <div style={{ fontSize: "24px", marginBottom: "8px" }}>{settings.langue === "fr" ? "🇫🇷" : "🇲🇬"}</div>
             <div style={{ fontSize: "12px", color: "rgba(255,184,48,0.7)", marginBottom: "4px" }}>Langue</div>
@@ -171,7 +166,10 @@ export default function Parametres() {
 
       {/* Réinitialiser */}
       <button
-        onClick={() => { updateSetting("theme","dark"); updateSetting("police","medium"); updateSetting("langue","fr"); }}
+        onClick={() => {
+          updateSetting("theme",  "dark");
+          updateSetting("langue", "fr");
+        }}
         style={{
           padding: "12px 24px", borderRadius: "12px",
           border: "1px solid rgba(255,107,107,0.3)",

@@ -3,7 +3,6 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
-// ---- Traductions Français / Malagasy ----
 export const traductions = {
   fr: {
     dashboard:     "Dashboard",
@@ -46,6 +45,14 @@ export const traductions = {
 const AppContext = createContext();
 const defaut = { theme: "dark", police: "medium", langue: "fr" };
 
+// ✅ Multiplicateurs de taille
+// Utilisés directement dans les composants
+export const taillePolice = {
+  small:  { xs: "10px", sm: "11px", base: "13px", lg: "15px", xl: "18px", xxl: "20px" },
+  medium: { xs: "11px", sm: "12px", base: "14px", lg: "16px", xl: "20px", xxl: "24px" },
+  large:  { xs: "13px", sm: "14px", base: "16px", lg: "19px", xl: "24px", xxl: "28px" },
+};
+
 export function AppProvider({ children }) {
 
   const [settings, setSettings] = useState(() => {
@@ -58,30 +65,20 @@ export function AppProvider({ children }) {
   });
 
   useEffect(() => {
-    // Sauvegarde dans localStorage
     localStorage.setItem("nexa_settings", JSON.stringify(settings));
-
-    // ✅ Applique la taille de police directement sur body
-    // On utilise style inline sur body pour éviter le conflit avec Tailwind
-    const tailles = {
-      small:  "13px",
-      medium: "15px",
-      large:  "18px",
-    };
-    document.body.style.fontSize = tailles[settings.police];
-
-    // ✅ Applique aussi sur html pour que rem fonctionne
-    document.documentElement.style.fontSize = tailles[settings.police];
-
   }, [settings]);
 
   const updateSetting = (key, value) =>
     setSettings(prev => ({ ...prev, [key]: value }));
 
-  const t = traductions[settings.langue];
+  const t  = traductions[settings.langue];
+
+  // ✅ fs = tailles de police selon le choix
+  const fs = taillePolice[settings.police];
 
   return (
-    <AppContext.Provider value={{ settings, updateSetting, t }}>
+    // ✅ On expose "fs" dans le contexte
+    <AppContext.Provider value={{ settings, updateSetting, t, fs }}>
       {children}
     </AppContext.Provider>
   );

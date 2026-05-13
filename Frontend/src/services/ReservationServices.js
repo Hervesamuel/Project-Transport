@@ -3,7 +3,7 @@
 
 import axios from "axios";
 
-const API = "http://localhost:8080/api/reservation";
+const API = "http://localhost:8080/api/reservations";
 
 export const getReservations   = ()         => axios.get(API);
 export const addReservation    = (data)     => axios.post(API, data);
