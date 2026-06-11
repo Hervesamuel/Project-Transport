@@ -4,27 +4,51 @@ const fDate = (d) => d ? new Date(d).toLocaleDateString("fr-FR", {
   day: "2-digit", month: "short", year: "numeric"
 }) : "—";
 
-export default function ReservationTable({ reservations, onEdit, onDelete }) {
+export default function ReservationTable({ reservations, onEdit, onDelete, selectedReservations, onSelectReservation, onSelectAll }) {
 
   if (reservations.length === 0)
     return <p style={{ textAlign: "center", padding: "48px", color: "rgba(255,255,255,0.3)", fontSize: "14px" }}>
       Aucune réservation enregistrée.
     </p>;
 
+    const thStyle = {
+      textAlign: "left",
+      padding: "12px 16px",
+      fontSize: "11px",
+      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: "1px",
+      color: "rgba(255,255,255,0.3)",
+      borderBottom: "1px solid rgba(255,255,255,0.06)",
+    };
+
   return (
     <div style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            {["ID", "Véhicule", "Voyageur", "Téléphone", "Trajet", "Date", "Actions"].map((h) => (
-              <th key={h} style={{
-                textAlign: "left", padding: "12px 16px",
-                fontSize: "11px", fontWeight: "700",
-                textTransform: "uppercase", letterSpacing: "1px",
-                color: "rgba(255,255,255,0.3)",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
-              }}>{h}</th>
-            ))}
+
+            {/* Checkbox sélectionner tout */}
+            <th style={{
+              padding: "12px 16px",
+              borderBottom: "1px solid rgba(255,255,255,0.06)",
+            }}>
+              <input
+                type="checkbox"
+                checked={
+                  reservations.length > 0 &&
+                  selectedReservations.length === reservations.length
+                }
+                onChange={onSelectAll}
+              />
+            </th>
+            <th style={thStyle}>Véhicule</th>
+            <th style={thStyle}>Voyageur</th>
+            <th style={thStyle}>Téléphone</th>
+            <th style={thStyle}>Trajet</th>
+            <th style={thStyle}>Date</th>
+            <th style={thStyle}>Actions</th>
+
           </tr>
         </thead>
         <tbody>
@@ -33,7 +57,15 @@ export default function ReservationTable({ reservations, onEdit, onDelete }) {
               onMouseEnter={e => e.currentTarget.style.background = "rgba(108,99,255,0.07)"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}
               style={{ transition: "background 0.15s" }}>
+              <td style={{ padding: "12px 16px" }}>
 
+                <input
+                  type="checkbox"
+                  checked={selectedReservations.includes(r.id_res)}
+                  onChange={() => onSelectReservation(r.id_res)}
+                />
+
+              </td>
               {/* ID */}
               <td style={{ padding: "12px 16px", fontSize: "12px", fontWeight: "600", color: "#6C63FF" }}>
                 RES-{String(r.id_res).padStart(3, "0")}

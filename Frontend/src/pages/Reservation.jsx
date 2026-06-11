@@ -3,6 +3,11 @@ import ReservationForm  from "../components/ReservationForm";
 import ReservationTable from "../components/ReservationTable";
 import { getReservations, addReservation, updateReservation, deleteReservation } from "../services/reservationServices";
 import { getVehicules } from "../services/vehiculeServices";
+import axios from "axios";
+
+
+
+
 
 // ---- Toast notification ----
 function Toast({ msg, type }) {
@@ -22,7 +27,6 @@ function Toast({ msg, type }) {
 }
 
 // ---- Modele de confirmation suppression ----
-
 function ModalConfirm({ onConfirm, onCancel }) {
   return (
     <div style={{
@@ -67,6 +71,14 @@ export default function Reservation() {
   const [toast, setToast]               = useState({ msg: "", type: "success" });
   const [recherche, setRecherche]       = useState("");
   const [loading, setLoading]           = useState(false);
+  const [selectedReservations, setSelectedReservations] = useState([]);
+  // ouverture/fermeture de la fenêtre notification
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+
+  // message écrit par l'administrateur
+  const [notificationMessage, setNotificationMessage] = useState("");
+
+
 
   // Affiche toast 3 secondes
   const notif = (msg, type = "success") => {
@@ -133,29 +145,155 @@ export default function Reservation() {
     r.ville_arrive?.toLowerCase().includes(recherche.toLowerCase())
   );
 
+  // Cocher / décocher une réservation
+  const handleSelectReservation = (id) => {
+       // si l'id est déjà dans la liste
+    if (selectedReservations.includes(id)) {
+      // on retire cet id
+      setSelectedReservations(
+        selectedReservations.filter(resId => resId !== id)
+      );
+    } else {
+      // sinon on l'ajoute
+      setSelectedReservations([
+        ...selectedReservations,
+        id
+      ]);
+    }
+  };
+    // COCHER OU DECOCHER TOUTES LES RESERVATIONS
+    const handleSelectAll = () => {
+
+      // si toutes les réservations sont déjà cochées
+      if (selectedReservations.length === filtres.length) {
+
+        // on vide la sélection
+        setSelectedReservations([]);
+
+      } else {
+
+        // sinon on sélectionne toutes les réservations
+        setSelectedReservations(
+          filtres.map((r) => r.id_res)
+        );
+
+      }
+
+    };
+
+     // ENVOI DE NOTIFICATION VERS SPRING BOOT
+     const handleSendNotification = async () => {
+
+       try {
+
+         // envoie des données vers le backend
+         await axios.post(
+
+           "http://localhost:8080/api/notifications/send",
+
+           {
+
+             // liste des réservations cochées
+             reservationIds: selectedReservations,
+
+             // message saisi dans le textarea
+             message: notificationMessage
+
+           }
+
+         );
+
+         // message de succès
+         notif(
+           "✅ Notification envoyée avec succès",
+           "success"
+         );
+
+         // fermer la fenêtre modal
+         setShowNotificationModal(false);
+
+         // vider le message
+         setNotificationMessage("");
+
+         // décocher toutes les réservations
+         setSelectedReservations([]);
+
+       }
+
+       catch(error){
+
+         console.error(error);
+
+         notif(
+           "❌ Erreur lors de l'envoi",
+           "error"
+         );
+
+       }
+
+     };
+
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-
       <Toast msg={toast.msg} type={toast.type} />
 
-      {/* En-tête */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* Barre d'actions supérieure */}
+      <div style={{ display: "flex", justifyContent: "between", alignItems: "center", gap: "12px" }}>
+
+        {/* Titre et compteur */}
         <div>
           <h2 style={{ fontSize: "24px", fontWeight: "900", color: "#fff" }}>🎫 Réservations</h2>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", marginTop: "4px" }}>
             {reservations.length} réservation{reservations.length > 1 ? "s" : ""}
           </p>
         </div>
-        <button
-          onClick={() => { setShowForm(!showForm); setSelected(null); }}
-          style={{
-            padding: "10px 20px", borderRadius: "12px", border: "none",
-            background: showForm && !selected ? "rgba(255,107,107,0.2)" : "linear-gradient(135deg,#6C63FF,#00C9A7)",
-            color: "#fff", fontSize: "14px", fontWeight: "700", cursor: "pointer",
-            boxShadow: "0 4px 14px rgba(108,99,255,0.3)",
-          }}>
-          {showForm && !selected ? "✕ Fermer" : "+ Nouvelle réservation"}
-        </button>
+
+        {/* Boutons d'actions */}
+        <div style={{ display: "flex", gap: "12px", marginLeft: "auto" }}>
+         {selectedReservations.length > 0 && (
+
+           <button
+             onClick={() => setShowNotificationModal(true)}
+             style={{
+               padding: "10px 20px",
+               borderRadius: "12px",
+               border: "none",
+               background: "linear-gradient(135deg,#FFB830,#FF6B6B)",
+               color: "#fff",
+               fontSize: "14px",
+               fontWeight: "700",
+               cursor: "pointer"
+             }}
+           >
+             📩 Envoyer notification ({selectedReservations.length})
+           </button>
+
+         )}
+
+          <button
+            onClick={() => {
+              setShowForm(!showForm);
+              setSelected(null);
+            }}
+            style={{
+              padding: "10px 20px",
+              borderRadius: "12px",
+              border: "none",
+              background:
+                showForm && !selected
+                  ? "rgba(255,107,107,0.2)"
+                  : "linear-gradient(135deg,#6C63FF,#00C9A7)",
+              color: "#fff",
+              fontSize: "14px",
+              fontWeight: "700",
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(108,99,255,0.3)"
+            }}
+          >
+            {showForm && !selected ? "✕ Fermer" : "+ Nouvelle réservation"}
+          </button>
+        </div>
       </div>
 
       {/* Formulaire */}
@@ -170,55 +308,197 @@ export default function Reservation() {
 
       {/* Recherche */}
       <div style={{
-        display: "flex", alignItems: "center", gap: "12px",
-        padding: "12px 16px", borderRadius: "12px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        padding: "12px 16px",
+        borderRadius: "12px",
         border: "1px solid rgba(255,255,255,0.07)",
         background: "rgba(255,255,255,0.03)",
       }}>
         <span style={{ color: "rgba(255,255,255,0.3)" }}>🔍</span>
         <input
-          style={{ flex: 1, background: "none", border: "none", outline: "none", color: "#fff", fontSize: "14px" }}
-          placeholder="Rechercher par voyageur, ville départ ou arrivée..."
+          type="text"
+          placeholder="Rechercher un voyageur, une ville..."
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
+          style={{
+            flex: 1,
+            background: "transparent",
+            border: "none",
+            color: "#fff",
+            outline: "none",
+            fontSize: "14px"
+          }}
         />
-        {recherche && (
-          <button onClick={() => setRecherche("")}
-            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", fontSize: "18px", cursor: "pointer" }}>
-            ✕
-          </button>
-        )}
       </div>
 
-      {/* Tableau */}
-      <div style={{
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: "16px", padding: "20px",
-      }}>
-        <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", marginBottom: "12px" }}>
-          {filtres.length} résultat{filtres.length > 1 ? "s" : ""}
-        </p>
-        {loading ? (
-          <p style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.3)", fontSize: "14px" }}>
-            ⏳ Chargement...
-          </p>
-        ) : (
-          <ReservationTable
-            reservations={filtres}
-            onEdit={handleEdit}
-            onDelete={(id) => setConfirmId(id)}
-          />
-        )}
-      </div>
+      {/* Tableau des réservations */}
+      {loading ? (
+        <p style={{ color: "#fff" }}>Chargement...</p>
+      ) : (
+        <ReservationTable
+          reservations={filtres}
+          onEdit={handleEdit}
+          onDelete={(id) => setConfirmId(id)}
+          selectedReservations={selectedReservations}
+          onSelectReservation={handleSelectReservation}
+           onSelectAll={handleSelectAll}
+        />
+      )}
 
-      {/* Modal suppression */}
+      {/* Modal de confirmation */}
       {confirmId && (
         <ModalConfirm
           onConfirm={handleDelete}
           onCancel={() => setConfirmId(null)}
         />
       )}
+
+    {showNotificationModal && (
+
+      <ModalNotification
+
+        message={notificationMessage}
+
+        setMessage={setNotificationMessage}
+
+        onSend={handleSendNotification}
+
+        onCancel={() => setShowNotificationModal(false)}
+
+        nbSelection={selectedReservations.length}
+
+      />
+
+    )}
+
     </div>
   );
+}
+
+
+
+
+// ---- Modal Notification ----
+
+function ModalNotification({
+
+  message,
+  setMessage,
+  onSend,
+  onCancel,
+  nbSelection
+
+}) {
+
+  return (
+
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        background: "rgba(0,0,0,0.6)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      onClick={onCancel}
+    >
+
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#1A1A2E",
+          borderRadius: "16px",
+          padding: "24px",
+          width: "500px",
+          maxWidth: "95%",
+          border: "1px solid rgba(255,255,255,0.08)"
+        }}
+      >
+
+        <h2
+          style={{
+            color: "#fff",
+            marginBottom: "10px"
+          }}
+        >
+          📩 Notification Nexa Transport
+        </h2>
+
+        <p
+          style={{
+            color: "rgba(255,255,255,0.5)",
+            marginBottom: "15px"
+          }}
+        >
+          Destinataires sélectionnés :
+          <strong style={{ color: "#FFB830" }}>
+            {" "}
+            {nbSelection}
+          </strong>
+        </p>
+
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Écrire votre message ici..."
+          rows={6}
+          style={{
+            width: "100%",
+            borderRadius: "10px",
+            border: "1px solid rgba(255,255,255,0.1)",
+            background: "rgba(255,255,255,0.03)",
+            color: "#fff",
+            padding: "12px",
+            resize: "none",
+            outline: "none"
+          }}
+        />
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "10px",
+            marginTop: "20px"
+          }}
+        >
+
+          <button
+            onClick={onCancel}
+            style={{
+              padding: "10px 16px",
+              borderRadius: "10px",
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            Annuler
+          </button>
+
+          <button
+            onClick={onSend}
+            style={{
+              padding: "10px 16px",
+              borderRadius: "10px",
+              border: "none",
+              background: "#6C63FF",
+              color: "#fff",
+              cursor: "pointer"
+            }}
+          >
+            Envoyer
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  );
+
 }
