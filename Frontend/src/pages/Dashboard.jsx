@@ -1,26 +1,20 @@
 // pages/Dashboard.jsx
 // Page d'accueil — Tableau de bord
+// Affiche les vraies données depuis le backend Spring Boot
 // PAS de Layout ici → déjà dans AppRouter.jsx via <Outlet />
 
-import { useApp } from "../context/AppContext";
+import { useEffect, useState } from "react";
+import { useApp }    from "../context/AppContext";
+import { getStats }  from "../services/dashboardServices";
 
-// ---- Statistiques ----
-const stats = [
-  { label: "Véhicules",    value: 12, icon: "🚌", color: "#6C63FF", bg: "rgba(108,99,255,0.12)", trend: "+2 ce mois"  },
-  { label: "Chauffeurs",   value: 8,  icon: "👤", color: "#00C9A7", bg: "rgba(0,201,167,0.12)",  trend: "+1 ce mois"  },
-  { label: "Réservations", value: 40, icon: "🎫", color: "#FFB830", bg: "rgba(255,184,48,0.12)", trend: "+8 ce mois"  },
-  { label: "Trajets",      value: 5,  icon: "🗺️", color: "#FF6B6B", bg: "rgba(255,107,107,0.12)",trend: "Actifs"      },
-];
-
-// ---- Trajets en cours ----
-// Renommé "trajetsList" pour éviter conflit avec variable "t" de useApp()
+// ---- Trajets en cours (données statiques pour l'instant) ----
 const trajetsList = [
   { from: "Antananarivo", to: "Tamatave",     chauffeur: "Rakoto A.",  vehicule: "Bus 01", progress: 68 },
   { from: "Antananarivo", to: "Diego Suarez", chauffeur: "Rabe C.",    vehicule: "Bus 03", progress: 35 },
   { from: "Antananarivo", to: "Majunga",      chauffeur: "Randria P.", vehicule: "Bus 07", progress: 82 },
 ];
 
-// ---- Réservations récentes ----
+// ---- Réservations récentes (données statiques pour l'instant) ----
 const recentRes = [
   { id: "RES-001", client: "Rakoto Jean", trajet: "Tana → Tamatave",     date: "16 Avr 2026", montant: "85 000 Ar"  },
   { id: "RES-002", client: "Rasoa Marie", trajet: "Tana → Diego",        date: "17 Avr 2026", montant: "120 000 Ar" },
@@ -28,7 +22,7 @@ const recentRes = [
   { id: "RES-004", client: "Ravelo Haja", trajet: "Tana → Fianarantsoa", date: "18 Avr 2026", montant: "60 000 Ar"  },
 ];
 
-// ---- Stats rapides ----
+// ---- Stats rapides (données statiques) ----
 const statsRapides = [
   { label: "Taux de remplissage", value: "78%",          color: "#6C63FF" },
   { label: "Revenus du mois",     value: "4 250 000 Ar", color: "#00C9A7" },
@@ -38,8 +32,63 @@ const statsRapides = [
 
 export default function Dashboard() {
 
-  // ✅ "trad" au lieu de "t" pour éviter tout conflit
   const { t: trad } = useApp();
+
+  // ---- État des stats depuis la BD ----
+  // Valeurs par défaut à 0 avant chargement
+  const [stats, setStats] = useState({
+    vehicules:    0,
+    chauffeurs:   0,
+    reservations: 0,
+  });
+
+  // ---- État de chargement ----
+  const [loading, setLoading] = useState(true);
+
+  // ---- Chargement des stats au montage du composant ----
+  useEffect(() => {
+    getStats()
+      .then((res) => {
+        // ✅ Met à jour les stats avec les vraies données de la BD
+        setStats(res.data);
+      })
+      .catch(() => {
+        // En cas d'erreur → garde les valeurs à 0
+        console.error("Erreur chargement stats dashboard");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []); // [] = exécuté une seule fois au chargement
+
+  // ---- Cartes statistiques avec vraies données ----
+  // Construites après chargement pour avoir les vraies valeurs
+  const carteStats = [
+    {
+      label: trad.vehicules,
+      value: loading ? "..." : stats.vehicules,   // ✅ vraie donnée BD
+      icon: "🚌", color: "#6C63FF",
+      bg: "rgba(108,99,255,0.12)", trend: "Total enregistrés"
+    },
+    {
+      label: trad.chauffeurs,
+      value: loading ? "..." : stats.chauffeurs,  // ✅ vraie donnée BD
+      icon: "👤", color: "#00C9A7",
+      bg: "rgba(0,201,167,0.12)", trend: "Total enregistrés"
+    },
+    {
+      label: trad.reservations,
+      value: loading ? "..." : stats.reservations, // ✅ vraie donnée BD
+      icon: "🎫", color: "#FFB830",
+      bg: "rgba(255,184,48,0.12)", trend: "Total enregistrées"
+    },
+    {
+      label: "Trajets",
+      value: trajetsList.length,                   // Nombre de trajets actifs
+      icon: "🗺️", color: "#FF6B6B",
+      bg: "rgba(255,107,107,0.12)", trend: "Actifs aujourd'hui"
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -60,7 +109,6 @@ export default function Dashboard() {
         }} />
 
         <div>
-          {/* Sous-titre bienvenue depuis traduction */}
           <div className="text-xs font-bold tracking-widest uppercase mb-2"
             style={{ color: "#6C63FF" }}>
             🇲🇬 {trad.bienvenue}
@@ -84,8 +132,9 @@ export default function Dashboard() {
       </div>
 
       {/* ============ CARTES STATISTIQUES ============ */}
+      {/* Affiche "..." pendant le chargement puis les vraies données */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {stats.map((s, i) => (
+        {carteStats.map((s, i) => (
           <div key={i}
             className="rounded-2xl p-6 relative overflow-hidden border transition-all duration-200 hover:-translate-y-1"
             style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.07)" }}
@@ -102,7 +151,7 @@ export default function Dashboard() {
               {s.icon}
             </div>
 
-            {/* Chiffre */}
+            {/* Chiffre — "..." pendant chargement sinon vraie valeur */}
             <div className="text-4xl font-black text-white leading-none mb-1">
               {s.value}
             </div>
@@ -136,10 +185,8 @@ export default function Dashboard() {
             </span>
           </div>
 
-          {/* ✅ trajetsList au lieu de t pour éviter conflit */}
           {trajetsList.map((trajet, i) => (
             <div key={i} className="mb-4">
-              {/* Ligne : from → to + pourcentage */}
               <div className="flex justify-between mb-1">
                 <div>
                   <span className="font-semibold text-sm text-white">{trajet.from}</span>
@@ -150,12 +197,9 @@ export default function Dashboard() {
                   {trajet.progress}%
                 </span>
               </div>
-
-              {/* Chauffeur et véhicule */}
               <div className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>
                 {trajet.chauffeur} • {trajet.vehicule}
               </div>
-
               {/* Barre de progression */}
               <div className="h-1.5 rounded-full overflow-hidden"
                 style={{ background: "rgba(255,255,255,0.08)" }}>

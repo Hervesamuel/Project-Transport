@@ -1,10 +1,13 @@
 package com.Gestion_transport.Sit_web.controller;
 import com.Gestion_transport.Sit_web.entity.Notification;
 import com.Gestion_transport.Sit_web.service.NotificationService;
+import com.Gestion_transport.Sit_web.dto.NotificationRequest;
 
 
+import com.Gestion_transport.Sit_web.service.SmsService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -37,6 +40,19 @@ public class NotificationController {
         notificationService.markAllAsRead();
     }
 
+    @PostMapping("/send")
+    public void sendNotification(
+            @RequestBody NotificationRequest request
+    ){
+
+        notificationService.envoyerNotificationAuxVoyageurs(
+                request.getReservationIds(),
+                request.getMessage()
+
+        );
+
+
+    }
 
 }
 

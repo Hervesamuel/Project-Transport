@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 public class Notification {
 
     // ID de la notification
-    @Autowired
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
