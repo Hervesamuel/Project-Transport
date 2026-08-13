@@ -149,17 +149,27 @@ export default function ChauffeurForm({ initial = null, onSubmit, onCancel }) {
           {errors.genre && <p style={errSt}>⚠ {errors.genre}</p>}
         </div>
 
-        {/* Email */}
-        <div>
-          <label style={lbl}>Email *</label>
-          <input
-            style={{ ...inp, borderColor: errors.email ? "#FF6B6B" : "rgba(255,255,255,0.1)" }}
-            type="email" name="email" value={form.email} onChange={change}
-            placeholder="nom@email.com"
-            maxLength={120}             // Correspond à length=120 en Java
-          />
-          {errors.email && <p style={errSt}>⚠ {errors.email}</p>}
-        </div>
+       {/* Email */}
+       <div>
+         <label style={lbl}>Email *</label>
+         <input
+           style={{
+             ...inp,
+             borderColor: errors.email ? "#FF6B6B" : "rgba(255,255,255,0.1)"
+           }}
+           type="email"
+           name="email"
+           value={form.email}
+           onChange={change}
+           placeholder="nom@gmail.com"
+           maxLength={120}
+
+           // Accepte uniquement les adresses Gmail
+           pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$"
+         />
+
+         {errors.email && <p style={errSt}>⚠ {errors.email}</p>}
+       </div>
       </div>
 
       {/* Boutons */}

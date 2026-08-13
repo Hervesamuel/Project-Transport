@@ -7,6 +7,8 @@ import Vehicule from "../pages/Vehicule"
 import Reservation from "../pages/Reservation"
 import Layout from "../components/Layout"
 import Parametres from "../pages/Parametres";
+import Statistiques from "../pages/Statistiques";
+
 
 // Routes : Routes est un conteneur qui contient toutes les routes de l'application.
 // Route :
@@ -29,6 +31,7 @@ function AppRouter() {
                 <Route path="chauffeurs" element={<Chauffeurs />} />
                 <Route path="Reservations" element={<Reservation />} />
                 <Route path="Vehicule" element={<Vehicule />} />
+                <Route path="statistiques" element={<Statistiques />} />
                 <Route path="Parametres" element={<Parametres/>} />
 
             </Route>

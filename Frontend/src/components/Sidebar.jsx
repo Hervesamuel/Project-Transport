@@ -18,6 +18,7 @@ function Sidebar() {
     { label: t.chauffeurs,   icon: "👤", path: "/chauffeurs"  },
     { label: t.vehicules,    icon: "🚌", path: "/vehicules"   },
     { label: t.reservations, icon: "🎫", path: "/reservations"},
+    { label: "Statistiques", icon: "📊", path: "/statistiques" },
     { label: t.parametres,   icon: "⚙️", path: "/parametres" },
   ];
 

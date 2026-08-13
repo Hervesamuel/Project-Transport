@@ -4,10 +4,12 @@ package com.Gestion_transport.Sit_web.controller;
 import com.Gestion_transport.Sit_web.entity.Reservation;
 import com.Gestion_transport.Sit_web.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/reservations")
@@ -38,5 +40,7 @@ public class ReservationController {
     public void deleteReservation(@PathVariable Long id){
         reservationService.deleteReservation(id);
     }
+
+
 }
 

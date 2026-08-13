@@ -37,9 +37,6 @@ export default function VehiculeTable({ vehicules, onEdit, onDelete }) {
                 {/* ID */}
                 <td style={{ padding: "12px 16px", fontSize: "12px", fontWeight: "600", color: "#6C63FF" }}>
 
-
-                  {v.id_vehicule}
-
                 </td>
 
                 {/* Marque + Modèle */}
