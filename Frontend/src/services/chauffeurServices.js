@@ -3,7 +3,7 @@
 
 import axios from "axios";
 
-const API = "http://localhost:8080/api/chauffeurs";
+const API = "https://project-transport.onrender.com/api/chauffeurs";
 
 export const getChauffeurs    = ()         => axios.get(API);
 export const addChauffeur     = (data)     => axios.post(API, data);

@@ -3,7 +3,7 @@
 
 import axios from "axios";
 
-const API = "http://localhost:8080/api/statistiques";
+const API =  "https://project-transport.onrender.com/api/statistiques";
 
 // Récupère toutes les statistiques en un seul appel
 export const getStatistiques = () => axios.get(API);

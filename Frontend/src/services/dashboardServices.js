@@ -4,7 +4,7 @@
 
 import axios from "axios";
 
-const API = "http://localhost:8080/api/dashboard";
+const API = "https://project-transport.onrender.com/api/dashboard";
 
 // Récupère les stats : nombre de véhicules, chauffeurs, réservations
 export const getStats = () => axios.get(`${API}/stats`);

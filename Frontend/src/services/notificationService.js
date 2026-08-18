@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // URL API backend
-const API_URL = "http://localhost:8080/api/notifications";
+const API_URL = "https://project-transport.onrender.com/api/notifications";
 
 // récupérer toutes les notifications
 export const getNotifications = () => {

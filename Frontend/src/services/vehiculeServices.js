@@ -1,6 +1,6 @@
 import axios from "axios";
  
-const API = "http://localhost:8080/api/vehicules";
+const API = "https://project-transport.onrender.com/api/vehicules";
  
 export const getVehicules   = ()         => axios.get(API);
 export const addVehicule    = (data)     => axios.post(API, data);
