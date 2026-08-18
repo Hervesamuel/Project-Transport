@@ -14,5 +14,5 @@ export const getNotificationCount = () => {
 };
 
 export const markNotificationsAsRead = () => {
-  return axios.put("http://localhost:8080/api/notifications/read");
+  return axios.put("https://project-transport.onrender.com/api/notifications/send");
 };
